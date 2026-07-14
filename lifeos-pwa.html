@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0F1419">
+    <meta name="description" content="Tu app de productividad - Hábitos, tareas, metas, frases inspiradoras">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LifeOS">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230F1419' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='%23D4AF37' text-anchor='middle' dominant-baseline='middle' font-family='serif' font-weight='bold'>L</text></svg>">
+    <link rel="manifest" href="data:application/json,{
+        'name': 'LifeOS - Productividad',
+        'short_name': 'LifeOS',
+        'description': 'Tu app de hábitos, tareas y metas',
+        'start_url': '/',
+        'display': 'standalone',
+        'background_color': '#0F1419',
+        'theme_color': '#D4AF37',
+        'orientation': 'portrait-primary',
+        'icons': [
+            {
+                'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect fill=%22%230F1419%22 width=%22192%22 height=%22192%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%22120%22 fill=%22%23D4AF37%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-family=%22serif%22 font-weight=%22bold%22>L</text></svg>',
+                'sizes': '192x192',
+                'type': 'image/svg+xml',
+                'purpose': 'any'
+            }
+        ]
+    }">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: #0F1419;
+            color: #E8E8E8;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px 16px 120px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #D4AF37;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #8896A6;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #1A1F2E;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .card:active {
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        input, textarea, select {
+            flex: 1;
+            background: #0F1419;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            color: #E8E8E8;
+            padding: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #D4AF37;
+        }
+
+        input::placeholder {
+            color: #8896A6;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .btn-primary {
+            background: #D4AF37;
+            color: #0F1419;
+            flex: 1;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+            background: #c5a02a;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: #ef476f;
+            border: 1px solid #ef476f;
+            padding: 6px 10px;
+        }
+
+        .item {
+            background: #0F1419;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-title {
+            color: #E8E8E8;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .item-desc {
+            color: #8896A6;
+            font-size: 12px;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .checkbox.checked {
+            background: #D4AF37;
+            border-color: #D4AF37;
+            color: #0F1419;
+            font-weight: bold;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1A1F2E;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 1000;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #8896A6;
+            font-size: 24px;
+            transition: color 0.3s;
+            flex: 1;
+            padding: 8px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .nav-item.active {
+            color: #D4AF37;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .stat {
+            text-align: center;
+            font-size: 12px;
+            color: #8896A6;
+            margin-top: 4px;
+        }
+
+        .habit-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .day-btn {
+            aspect-ratio: 1;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: transparent;
+            color: #8896A6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .day-btn.active {
+            background: #D4AF37;
+            color: #0F1419;
+            border-color: #D4AF37;
+        }
+
+        .quote {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .quote p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            color: #E8E8E8;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .quote-author {
+            color: #8896A6;
+            font-size: 12px;
+        }
+
+        .month-title {
+            color: #D4AF37;
+            font-size: 12px;
+            text-transform: capitalize;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8896A6;
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+        }
+
+        @supports (padding: max(0px)) {
+            .container {
+                padding-bottom: calc(120px + max(0px, env(safe-area-inset-bottom)));
+            }
+
+            .nav {
+                padding-bottom: calc(20px + max(0px, env(safe-area-inset-bottom)));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page active">
+            <div class="header">
+                <h1>LifeOS</h1>
+                <p>Tu app de productividad</p>
+            </div>
+
+            <div class="quote">
+                <p id="daily-quote">"La vida es lo que te sucede mientras estás ocupado haciendo otros planes."</p>
+                <p class="quote-author" id="daily-author">— John Lennon</p>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <p style="color: #8896A6; font-size: 12px;">Frase del día • Cambia cada 24h</p>
+            </div>
+        </div>
+
+        <!-- TAREAS PAGE -->
+        <div id="tareas-page" class="page">
+            <div class="header">
+                <h1 style="font-size: 2rem;">✓ Tareas</h1>
+                <p id="tareas-count">0 de 0 completadas</p>
+            </div>
+
+            <div class="card">
+                <div class="input-group">
+                    <input type="text" id="tarea-input" placeholder="Nueva tarea...">
+                    <button class="btn btn-primary btn-small" onclick="addTarea()">✓</button>
+                </div>
+            </div>
+
+            <div id="tareas-list"></div>
+        </div>
+
+        <!-- HÁBITOS PAGE -->
+        <div id="habitos-page" class="page">
+            <div class="header">
+                <h1 style="font-size: 2rem;">🔥 Hábitos</h1>
+                <p id="habitos-month">Enero 2024</p>
+            </div>
+
+            <div class="card">
+                <input type="text" id="habito-nombre" placeholder="Nombre del hábito (ej: Meditación)">
+                <input type="text" id="habito-emoji" placeholder="Emoji (ej: 🧘)" style="flex: 0.3; margin-top: 8px;">
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="addHabito()">Agregar Hábito</button>
+            </div>
+
+            <div id="habitos-list"></div>
+        </div>
+
+        <!-- METAS PAGE -->
+        <div id="metas-page" class="page">
+            <div class="header">
+                <h1 style="font-size: 2rem;">🎯 Metas</h1>
+                <p id="metas-count">0 de 0 completadas</p>
+            </div>
+
+            <div class="card">
+                <input type="text" id="meta-nombre" placeholder="Nombre de la meta">
+                <textarea id="meta-desc" placeholder="Descripción..."></textarea>
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="addMeta()">Agregar Meta</button>
+            </div>
+
+            <div id="metas-list"></div>
+        </div>
+
+        <!-- ADMIN PAGE -->
+        <div id="admin-page" class="page">
+            <div class="header">
+                <h1 style="font-size: 2rem;">⚙️ Admin</h1>
+                <p>Gestiona las frases</p>
+            </div>
+
+            <div class="card">
+                <textarea id="frase-texto" placeholder="Escribe la frase..."></textarea>
+                <input type="text" id="frase-autor" placeholder="Autor (opcional)" style="margin-top: 8px;">
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="addFrase()">Agregar Frase</button>
+            </div>
+
+            <div id="frases-list"></div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav">
+        <div class="nav-item active" onclick="goToPage('home')">
+            <span>✨</span>
+            <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item" onclick="goToPage('tareas')">
+            <span>✓</span>
+            <span class="nav-label">Tareas</span>
+        </div>
+        <div class="nav-item" onclick="goToPage('habitos')">
+            <span>🔥</span>
+            <span class="nav-label">Hábitos</span>
+        </div>
+        <div class="nav-item" onclick="goToPage('metas')">
+            <span>🎯</span>
+            <span class="nav-label">Metas</span>
+        </div>
+        <div class="nav-item" onclick="goToPage('admin')">
+            <span>⚙️</span>
+            <span class="nav-label">Admin</span>
+        </div>
+    </div>
+
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent(`
+                self.addEventListener('install', event => {
+                    self.skipWaiting();
+                });
+                self.addEventListener('activate', event => {
+                    self.clients.claim();
+                });
+                self.addEventListener('fetch', event => {
+                    if (event.request.method !== 'GET') return;
+                    event.respondWith(
+                        caches.match(event.request).then(response => {
+                            return response || fetch(event.request);
+                        }).catch(() => {
+                            return caches.match('/');
+                        })
+                    );
+                });
+            `)).catch(err => console.log('SW registration failed:', err));
+        }
+
+        const STORAGE_KEY = 'lifeOS_data';
+
+        const defaultData = {
+            tareas: [],
+            habitos: [],
+            metas: [],
+            frases: [
+                { id: '1', texto: 'El éxito no es final, el fracaso no es fatal: lo que importa es el coraje de continuar.', autor: 'Winston Churchill' },
+                { id: '2', texto: 'La vida es lo que te sucede mientras estás ocupado haciendo otros planes.', autor: 'John Lennon' },
+                { id: '3', texto: 'El único modo de hacer un gran trabajo es amar lo que haces.', autor: 'Steve Jobs' },
+                { id: '4', texto: 'No es el destino, sino la elección lo que define nuestras vidas.', autor: 'J.K. Rowling' },
+                { id: '5', texto: 'La mejor manera de predecir el futuro es crearlo.', autor: 'Peter Drucker' }
+            ]
+        };
+
+        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData;
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        function goToPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (page === 'home') renderHome();
+            if (page === 'tareas') renderTareas();
+            if (page === 'habitos') renderHabitos();
+            if (page === 'metas') renderMetas();
+            if (page === 'admin') renderAdmin();
+        }
+
+        // HOME
+        function renderHome() {
+            const quoteEl = document.getElementById('daily-quote');
+            const authorEl = document.getElementById('daily-author');
+            if (appData.frases.length > 0) {
+                const today = new Date();
+                const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+                const frase = appData.frases[dayOfYear % appData.frases.length];
+                quoteEl.textContent = '"' + frase.texto + '"';
+                authorEl.textContent = '— ' + (frase.autor || 'Anónimo');
+            }
+        }
+
+        // TAREAS
+        function addTarea() {
+            const input = document.getElementById('tarea-input');
+            if (!input.value.trim()) return;
+            
+            appData.tareas.push({
+                id: Date.now().toString(),
+                nombre: input.value.trim(),
+                completada: false
+            });
+            
+            input.value = '';
+            saveData();
+            renderTareas();
+        }
+
+        function toggleTarea(id) {
+            const tarea = appData.tareas.find(t => t.id === id);
+            if (tarea) tarea.completada = !tarea.completada;
+            saveData();
+            renderTareas();
+        }
+
+        function deleteTarea(id) {
+            appData.tareas = appData.tareas.filter(t => t.id !== id);
+            saveData();
+            renderTareas();
+        }
+
+        function renderTareas() {
+            const list = document.getElementById('tareas-list');
+            const count = appData.tareas.filter(t => t.completada).length;
+            
+            document.getElementById('tareas-count').textContent = `${count} de ${appData.tareas.length} completadas`;
+            
+            if (appData.tareas.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>No tienes tareas 🌟</p></div>';
+                return;
+            }
+
+            list.innerHTML = appData.tareas.map(tarea => `
+                <div class="item">
+                    <div class="checkbox ${tarea.completada ? 'checked' : ''}" onclick="toggleTarea('${tarea.id}')">
+                        ${tarea.completada ? '✓' : ''}
+                    </div>
+                    <div class="item-content">
+                        <div class="item-title ${tarea.completada ? 'style="opacity:0.5;text-decoration:line-through"' : ''}">${tarea.nombre}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteTarea('${tarea.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // HÁBITOS
+        function addHabito() {
+            const nombre = document.getElementById('habito-nombre').value.trim();
+            const emoji = document.getElementById('habito-emoji').value.trim() || '🔥';
+            
+            if (!nombre) return;
+            
+            appData.habitos.push({
+                id: Date.now().toString(),
+                nombre,
+                emoji,
+                completados: {}
+            });
+            
+            document.getElementById('habito-nombre').value = '';
+            document.getElementById('habito-emoji').value = '';
+            saveData();
+            renderHabitos();
+        }
+
+        function toggleHabitoDay(habitoId, day) {
+            const habito = appData.habitos.find(h => h.id === habitoId);
+            if (habito) {
+                habito.completados[day] = !habito.completados[day];
+                saveData();
+                renderHabitos();
+            }
+        }
+
+        function deleteHabito(id) {
+            appData.habitos = appData.habitos.filter(h => h.id !== id);
+            saveData();
+            renderHabitos();
+        }
+
+        function renderHabitos() {
+            const now = new Date();
+            const monthName = now.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            
+            document.getElementById('habitos-month').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+            
+            const list = document.getElementById('habitos-list');
+            
+            if (appData.habitos.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>No tienes hábitos 🌟</p></div>';
+                return;
+            }
+
+            list.innerHTML = appData.habitos.map(habito => {
+                const completados = Object.values(habito.completados).filter(v => v).length;
+                const percent = Math.round((completados / daysInMonth) * 100);
+                
+                let grid = '';
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const isCompleted = habito.completados[dateStr] || false;
+                    grid += `<button class="day-btn ${isCompleted ? 'active' : ''}" onclick="toggleHabitoDay('${habito.id}', '${dateStr}')">${day}</button>`;
+                }
+                
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: 24px; margin-bottom: 8px;">${habito.emoji}</div>
+                                <h3 style="color: #E8E8E8; font-size: 16px; margin-bottom: 4px;">${habito.nombre}</h3>
+                                <p class="stat">${completados}/${daysInMonth} días • ${percent}%</p>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteHabito('${habito.id}')">✕</button>
+                        </div>
+                        <div class="habit-grid">${grid}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // METAS
+        function addMeta() {
+            const nombre = document.getElementById('meta-nombre').value.trim();
+            const desc = document.getElementById('meta-desc').value.trim();
+            
+            if (!nombre) return;
+            
+            appData.metas.push({
+                id: Date.now().toString(),
+                nombre,
+                descripcion: desc,
+                completada: false
+            });
+            
+            document.getElementById('meta-nombre').value = '';
+            document.getElementById('meta-desc').value = '';
+            saveData();
+            renderMetas();
+        }
+
+        function toggleMeta(id) {
+            const meta = appData.metas.find(m => m.id === id);
+            if (meta) meta.completada = !meta.completada;
+            saveData();
+            renderMetas();
+        }
+
+        function deleteMeta(id) {
+            appData.metas = appData.metas.filter(m => m.id !== id);
+            saveData();
+            renderMetas();
+        }
+
+        function renderMetas() {
+            const list = document.getElementById('metas-list');
+            const count = appData.metas.filter(m => m.completada).length;
+            
+            document.getElementById('metas-count').textContent = `${count} de ${appData.metas.length} completadas`;
+            
+            if (appData.metas.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>No tienes metas 🌟</p></div>';
+                return;
+            }
+
+            list.innerHTML = appData.metas.map(meta => `
+                <div class="item">
+                    <div class="checkbox ${meta.completada ? 'checked' : ''}" onclick="toggleMeta('${meta.id}')">
+                        ${meta.completada ? '✓' : ''}
+                    </div>
+                    <div class="item-content">
+                        <div class="item-title ${meta.completada ? 'style="opacity:0.5;text-decoration:line-through"' : ''}">${meta.nombre}</div>
+                        ${meta.descripcion ? `<div class="item-desc">${meta.descripcion}</div>` : ''}
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteMeta('${meta.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // ADMIN
+        function addFrase() {
+            const texto = document.getElementById('frase-texto').value.trim();
+            const autor = document.getElementById('frase-autor').value.trim();
+            
+            if (!texto) return;
+            
+            appData.frases.push({
+                id: Date.now().toString(),
+                texto,
+                autor: autor || null
+            });
+            
+            document.getElementById('frase-texto').value = '';
+            document.getElementById('frase-autor').value = '';
+            saveData();
+            renderAdmin();
+        }
+
+        function deleteFrase(id) {
+            appData.frases = appData.frases.filter(f => f.id !== id);
+            saveData();
+            renderAdmin();
+        }
+
+        function renderAdmin() {
+            const list = document.getElementById('frases-list');
+            
+            if (appData.frases.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>No hay frases</p></div>';
+                return;
+            }
+
+            list.innerHTML = appData.frases.map(frase => `
+                <div class="card">
+                    <p style="font-style: italic; margin-bottom: 12px; line-height: 1.6;">❝ ${frase.texto} ❞</p>
+                    ${frase.autor ? `<p style="color: #8896A6; font-size: 12px; margin-bottom: 12px;">— ${frase.autor}</p>` : ''}
+                    <button class="btn btn-danger" onclick="deleteFrase('${frase.id}')">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        // INIT
+        renderHome();
+
+        // Prevent pinch zoom
+        document.addEventListener('touchmove', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>
