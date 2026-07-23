@@ -293,15 +293,6 @@
             border-color: #D4AF37;
         }
 
-        .day-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .day-btn.today {
-            border: 2px solid #D4AF37;
-        }
-
         .quote {
             text-align: center;
             margin: 30px 0;
@@ -465,6 +456,28 @@
     </div>
 
     <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent(`
+                self.addEventListener('install', event => {
+                    self.skipWaiting();
+                });
+                self.addEventListener('activate', event => {
+                    self.clients.claim();
+                });
+                self.addEventListener('fetch', event => {
+                    if (event.request.method !== 'GET') return;
+                    event.respondWith(
+                        caches.match(event.request).then(response => {
+                            return response || fetch(event.request);
+                        }).catch(() => {
+                            return caches.match('/');
+                        })
+                    );
+                });
+            `)).catch(err => console.log('SW registration failed:', err));
+        }
+
         const STORAGE_KEY = 'lifeOS_data';
 
         const defaultData = {
@@ -484,11 +497,6 @@
 
         function saveData() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        }
-
-        function getTodayDate() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         }
 
         function goToPage(page) {
@@ -571,7 +579,7 @@
             `).join('');
         }
 
-        // HÁBITOS - CON SISTEMA DE DÍA ACTUAL
+        // HÁBITOS
         function addHabito() {
             const nombre = document.getElementById('habito-nombre').value.trim();
             const emoji = document.getElementById('habito-emoji').value.trim() || '🔥';
@@ -591,15 +599,10 @@
             renderHabitos();
         }
 
-        function toggleHabitoDay(habitoId, date) {
-            const today = getTodayDate();
-            
-            // Solo permitir marcar HOY
-            if (date !== today) return;
-            
+        function toggleHabitoDay(habitoId, day) {
             const habito = appData.habitos.find(h => h.id === habitoId);
             if (habito) {
-                habito.completados[date] = !habito.completados[date];
+                habito.completados[day] = !habito.completados[day];
                 saveData();
                 renderHabitos();
             }
@@ -615,7 +618,6 @@
             const now = new Date();
             const monthName = now.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const today = getTodayDate();
             
             document.getElementById('habitos-month').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
             
@@ -634,13 +636,7 @@
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const isCompleted = habito.completados[dateStr] || false;
-                    const isToday = dateStr === today;
-                    const isPast = dateStr < today;
-                    
-                    const btnClass = `day-btn ${isCompleted ? 'active' : ''} ${isToday ? 'today' : ''}`;
-                    const isDisabled = !isToday;
-                    
-                    grid += `<button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="toggleHabitoDay('${habito.id}', '${dateStr}')">${day}</button>`;
+                    grid += `<button class="day-btn ${isCompleted ? 'active' : ''}" onclick="toggleHabitoDay('${habito.id}', '${dateStr}')">${day}</button>`;
                 }
                 
                 return `
@@ -654,7 +650,6 @@
                             <button class="btn btn-danger" onclick="deleteHabito('${habito.id}')">✕</button>
                         </div>
                         <div class="habit-grid">${grid}</div>
-                        <p style="text-align: center; color: #8896A6; font-size: 11px; margin-top: 12px;">Solo puedes marcar HOY • Se reinicia cada mes</p>
                     </div>
                 `;
             }).join('');
@@ -763,6 +758,7 @@
         // INIT
         renderHome();
 
+        // Prevent pinch zoom
         document.addEventListener('touchmove', function(event) {
             if (event.touches.length > 1) {
                 event.preventDefault();
